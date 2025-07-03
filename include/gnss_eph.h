@@ -7,7 +7,6 @@
 #include "eigen_defs.h"
 #include "interface.h"
 #include "f2b0_type.h"
-#include "gins.h"
 
 constexpr double EARTH_MU = 3.986004418e14;      // BDS地球引力常数(m^3/s^2)
 constexpr double EARTH_OMEGA_E = 7.2921150e-5;    // BDS地球自转角速度(rad/s)

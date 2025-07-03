@@ -32,6 +32,13 @@ public:
     GnssSolver() = default;
     ~GnssSolver() = default;
     
+    void addGnssObs(const GnssObs& obs) { obs_ = obs; };
+    void addGnssEph(const GnssEphBDS& eph)
+    {
+        eph_bds_ = eph;
+        eph_valid_ = true;
+    };
+
     /** 
      * @brief 读取卫星信号的频率
      */
@@ -52,6 +59,7 @@ private:
     GnssObs obs_;
     NavGnssSol gnss_sol_;
     Vec3d approx_llh_;  // 接收机近似位置
+    bool eph_valid_ = false; // 标记是否星历数据有效
     bool has_approx_llh_ = false; // 标记是否已初始化
     bool gnss_sol_success_ = false; // 标记是否成功求解GNSS位置
 };

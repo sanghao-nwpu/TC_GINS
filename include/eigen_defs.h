@@ -35,4 +35,13 @@ using MatXd = Eigen::MatrixXd;
 using Quatf = Eigen::Quaternionf;
 using Quatd = Eigen::Quaterniond;
 
+template <typename T, int n>
+using Vec = Eigen::Matrix<T, n, 1>;
+
+template <typename T, int m, int n>
+using Mat = Eigen::Matrix<T, m, n>;
+
+template <typename T, int n>
+using MatNN = Eigen::Matrix<T, n, n>;
+
 #endif /* _EIGEN_DEFS_H_ */

@@ -5,7 +5,6 @@
 #include "geo_utils.h"
 #include "interface.h"
 #include "f2b0_type.h"
-#include "gins.h"
 
 /**
  * @brief Gnss的解算结果

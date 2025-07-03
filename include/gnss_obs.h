@@ -5,7 +5,6 @@
 #include "eigen_defs.h"
 #include "interface.h"
 #include "f2b0_type.h"
-#include "gins.h"
 
 /**
  * @brief GNSS 观测数据
@@ -23,10 +22,10 @@ public:
     uint16_t numObs() const { return obs_.nav_sv_info.numCh; }   /** 返回卫星数目 */
 
     /** 返回第 index 个卫星信号的观测数据 */
-    SvInfo svInfo(uint16_t index) const { return obs_.nav_sv_info.svInfo[index]; }   /** 返回第 index 个卫星的观测数据 */
+    F2B0::SvInfo svInfo(uint16_t index) const { return obs_.nav_sv_info.svInfo[index]; }   /** 返回第 index 个卫星的观测数据 */
 
     /** 返回第 index 个卫星的时钟数据 */
-    SatClk satClk(uint16_t index) const { return obs_.nav_clock2.satClk[index]; }   /** 返回第 index 个卫星的时钟数据 */
+    F2B0::SatClk satClk(uint16_t index) const { return obs_.nav_clock2.satClk[index]; }   /** 返回第 index 个卫星的时钟数据 */
 
 private:
     GnssObsF2B0 obs_;   /** F2B0 观测数据 */
