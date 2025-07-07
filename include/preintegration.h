@@ -5,16 +5,11 @@
 
 class Preintegration 
 {
-public:
-    /** @brief 针对所有的IMU做预积分 */
-    void reintergration();
-    void addImu(const Imu &imu);
-private:
-    void intergrate(const Imu &last_imu, const Imu &curr_imu);
-
 private:
     double delta_t_ = 0.0;    /** 预积分时间长度 */
     uint32_t frames_ = 0;   /** 预积分用的帧数 */
+
+    std::deque<Imu> imu_array_; /** 预积分用到的Imu数据，左闭右开原则，积分到imu_array_.back() */
 
     /** 预积分观测量 */
     Mat3d delta_rot_ = Mat3d::Identity();
@@ -33,6 +28,23 @@ private:
     Mat3d dv_dbg_ = Mat3d::Zero();
     Mat3d dv_dba_ = Mat3d::Zero();
     Mat3d dp_dba_ = Mat3d::Zero();
+
+    /** 预计分类中不包含观测量相对于两端状态的雅可比 */
+public:
+    /** @brief 针对所有的IMU做预积分 */
+    void reintergration();
+    void addImu(const Imu &imu);
+    void reset(); 
+    
+
+    Eigen::Matrix<double, 9, 9> cov() const { return cov_; }
+    double delta_t() const { return delta_t_; }
+    Vec3d delta_pos() const { return delta_pos_; }
+    Vec3d delta_vel() const { return delta_vel_; }
+    Mat3d delta_rot() const { return delta_rot_; }
+private:
+    void intergrate(const Imu &last_imu, const Imu &curr_imu);
+
 
 };
 

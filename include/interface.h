@@ -35,4 +35,6 @@ struct GnssObsF2B0
     F2B0::NavPVT nav_pvt;
 };
 
+
+
 #endif /* _GINS_INTERFACE_H_ */

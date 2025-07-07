@@ -12,6 +12,10 @@
  */
 class GnssObs
 {
+
+private:
+    GnssObsF2B0 obs_;   /** F2B0 观测数据 */
+    
 public:
     GnssObs() = default;
     ~GnssObs() = default;
@@ -27,8 +31,6 @@ public:
     /** 返回第 index 个卫星的时钟数据 */
     F2B0::SatClk satClk(uint16_t index) const { return obs_.nav_clock2.satClk[index]; }   /** 返回第 index 个卫星的时钟数据 */
 
-private:
-    GnssObsF2B0 obs_;   /** F2B0 观测数据 */
 };
 
 #endif /* _GINS_GNSS_H_ */

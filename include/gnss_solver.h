@@ -1,9 +1,11 @@
 #ifndef _GINS_GNSS_SOLVER_H_
 #define _GINS_GNSS_SOLVER_H_
 
+#include "f2b0_type.h"
 #include "gnss_obs.h"
 #include "gnss_eph.h"
 
+using namespace F2B0;
 
 /** GNSS solution */
 struct NavGnssSol
@@ -53,6 +55,21 @@ public:
      * @brief 计算电离层延迟
      */
     double ionoDelay(const uint16_t svid);
+
+    /** 位置在对应卫星下的方向矢量 */
+    Vec3d e(const uint8_t svid, const Vec3d& ecef);
+
+
+    Vec3d getSppPos() const { return gnss_sol_.llh; };
+    Vec3d getSppVel() const { return gnss_sol_.vel; };
+
+    uint16_t numObs() const { return obs_.numObs(); };
+    bool isValidSPP() const { return gnss_sol_success_; };
+
+    SvInfo svinfo(const uint16_t svidx)
+    {
+        return obs_.svInfo(svidx);
+    }
 
 private:
     GnssEphBDS eph_bds_;

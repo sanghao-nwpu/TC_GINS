@@ -15,18 +15,9 @@ class MotionDetector
         Vec3d gyro;
         Vec3d acc;
     };
-
-    struct GnssRecord
-    {
-        double timestamp;
-        Vec3d pos;
-        double vel_forward;
-    };
-    
     
 public:
     void addImu(const Imu& imu);
-    void addGnssNmea(const GnssNmea& gnss_nmea);
 
     /** @brief update motion status */
     void update();
@@ -47,7 +38,6 @@ private:
     Vec4d gyro_distrib_;  /** distribution of gyro measurements, x,y,z,w */
     Vec4d acc_distrib_;  /** distribution of accelerometer measurements, x,y,z,xy */
     std::deque<ImuRecord> imu_queue_;
-    std::deque<GnssRecord> gnss_nmea_queue_;
 };
 
 
