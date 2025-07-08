@@ -1,7 +1,9 @@
 #ifndef _EIGEN_DEFS_H_
 #define _EIGEN_DEFS_H_
 
+#include <Eigen/Core>
 #include <Eigen/Dense>
+#include <Eigen/Geometry>
 
 using Vec2i = Eigen::Vector2i;
 using Mat2i = Eigen::Matrix2i;
@@ -40,8 +42,5 @@ using Vec = Eigen::Matrix<T, n, 1>;
 
 template <typename T, int m, int n>
 using Mat = Eigen::Matrix<T, m, n>;
-
-template <typename T, int n>
-using MatNN = Eigen::Matrix<T, n, n>;
 
 #endif /* _EIGEN_DEFS_H_ */

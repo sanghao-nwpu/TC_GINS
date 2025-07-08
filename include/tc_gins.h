@@ -80,8 +80,8 @@ struct NavInfo
     Vec3d bg;     /**  */ 
     Vec3d ba;
     Vec3d dgb;
-    double dt;    /** 接收机钟差 */
-    double dtr;     /** 接收机时钟漂移 */
+    double cdt;    /** 光速乘以接收机钟差 */
+    double ddtr;     /** 光速乘以接收机时钟漂移 */
 
     Vec3d p_dev;
     Vec3d v_dev;
@@ -89,53 +89,11 @@ struct NavInfo
     Vec3d bg_dev;
     Vec3d ba_dev;
     Vec3d dgb_dev;
-    double dt_dev;
-    double dtr_dev;
+    double cdt_dev;
+    double cdtr_dev;
 };
-
-/** GNSS satellite information */
-struct PephSatInfo
-{
-    uint8_t gnssid;  /** 卫星系统ID */
-    uint8_t svid;    /** 卫星ID */
-    Vec3d ecefPos;
-    float pAcc;          /** 位置精度 */
-    Vec3d ecefVel;
-    float vAcc;          /** 速度精度 */
-    double errClk;       /** 钟偏差 */
-    double clkDrift;     /** 钟漂移 */
-    double ionoDelay;   /** 离子时延 */
-    double tropoDelay;   /** 透射时延 */
-    double relativisticCorr;   /** 相对论纠正 */
-};
-
-
 class TcGins 
 {
-public:
-    TcGins(/* args */);
-    ~TcGins();
-    void SetConfig(const Config config);
-    void processImu(const Imu& imu);
-    void processGnssObs(const GnssObs& gnss_obs);
-    void processGnssEph(const GnssEphBDS& gnss_eph);
-
-private:
-    void predictDirectly(); /** 直接预测 */
-    void predictByPreInt(); /** 通过预积分预测 */
-    void nhcUpdate();
-    void zuptZihrUpdate();
-    void gnssObsUpdate();
-
-    /** @brief 返回是否已经初始化的标识 */
-    bool isInitialized();
-
-    /** 初始化滤波器 */
-    void initilize();
-
-    /**  */
-    void gnss_spp();
-
 private:
     Config config_;
     Imu last_imu_;  /** 不需要累积数据，累积数据放在MotionDetector即可 */
@@ -152,7 +110,31 @@ private:
     MotionInfo motion_info_;  /** 运动信息 */
     NavInfo nav_info_;  /** 导航名义状态 */
     Vec<double, TC_GINS_DIM> X_;  /** TC-GINS 状态 */
-    MatNN<double, TC_GINS_DIM> P_;  /** TC-GINS 状态协方差 */
+    Mat<double, TC_GINS_DIM, TC_GINS_DIM> P_;  /** TC-GINS 状态协方差 */
+
+public:
+    TcGins(/* args */);
+    ~TcGins();
+    void SetConfig(const Config config);
+    void processImu(const Imu& imu);
+    void processGnssObs(const GnssObs& gnss_obs);
+    void processGnssEph(const GnssEphBDS& gnss_eph);
+
+private:
+
+    /** 通过预积分预测 */
+    void predictByPreInt(); 
+    // void nhcUpdate();
+    // void zuptZihrUpdate();
+    void gnssObsUpdate();
+
+    /** @brief 返回是否已经初始化的标识 */
+    bool isInitialized();
+
+    /** 初始化滤波器 */
+    void initilize();
+
+
 };
 
 

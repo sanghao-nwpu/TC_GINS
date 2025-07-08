@@ -30,6 +30,15 @@ struct NavGnssSol
  */
 class GnssSolver
 {
+private:
+    GnssEphBDS eph_bds_;
+    GnssObs obs_;
+    NavGnssSol gnss_sol_;
+    Vec3d approx_llh_;  // 接收机近似位置
+    bool eph_valid_ = false; // 标记是否星历数据有效
+    bool has_approx_llh_ = false; // 标记是否已初始化
+    bool gnss_sol_success_ = false; // 标记是否成功求解GNSS位置
+    
 public:
     GnssSolver() = default;
     ~GnssSolver() = default;
@@ -57,11 +66,22 @@ public:
     double ionoDelay(const uint16_t svid);
 
     /** 位置在对应卫星下的方向矢量 */
-    Vec3d e(const uint8_t svid, const Vec3d& ecef);
+    Vec3d e(const uint8_t svid) 
+    {
+        Vec3d result = Vec3d::Zero();
+        result.x() = 1.0 * cos(obs_.svInfo(svid).azim) * cos(obs_.svInfo(svid).elev);
+        result.y() = 1.0 * sin(obs_.svInfo(svid).azim) * cos(obs_.svInfo(svid).elev);
+        result.z() = 1.0 * sin(obs_.svInfo(svid).elev);
+        return result;
+    }
 
 
     Vec3d getSppPos() const { return gnss_sol_.llh; };
     Vec3d getSppVel() const { return gnss_sol_.vel; };
+
+    /** 获取卫星的位置和速度，直接调用GnssEphBDS的接口 */
+    Vec3d getSatPos(const uint16_t svid) const { return eph_bds_.ecefPos(svid); };
+    Vec3d getSatVel(const uint16_t svid) const { return eph_bds_.ecefVel(svid); };
 
     uint16_t numObs() const { return obs_.numObs(); };
     bool isValidSPP() const { return gnss_sol_success_; };
@@ -71,14 +91,6 @@ public:
         return obs_.svInfo(svidx);
     }
 
-private:
-    GnssEphBDS eph_bds_;
-    GnssObs obs_;
-    NavGnssSol gnss_sol_;
-    Vec3d approx_llh_;  // 接收机近似位置
-    bool eph_valid_ = false; // 标记是否星历数据有效
-    bool has_approx_llh_ = false; // 标记是否已初始化
-    bool gnss_sol_success_ = false; // 标记是否成功求解GNSS位置
 };
 
 #endif /* _GINS_GNSS_H_ */

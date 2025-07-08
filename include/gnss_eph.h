@@ -13,6 +13,22 @@ constexpr double EARTH_OMEGA_E = 7.2921150e-5;    // BDS地球自转角速度(ra
 
 constexpr double C_LIGHT = 299792458.0; // 光速(m/s)
 
+/** GNSS satellite information */
+struct PephSatInfo
+{
+    uint8_t gnssid;  /** 卫星系统ID */
+    uint8_t svid;    /** 卫星ID */
+    Vec3d ecefPos;
+    float pAcc;          /** 位置精度 */
+    Vec3d ecefVel;
+    float vAcc;          /** 速度精度 */
+    double errClk;       /** 钟偏差 */
+    double clkDrift;     /** 钟漂移 */
+    double ionoDelay;   /** 离子时延 */
+    double tropoDelay;   /** 透射时延 */
+    double relativisticCorr;   /** 相对论纠正 */
+};
+
 class GnssEphBDS
 {
 public:

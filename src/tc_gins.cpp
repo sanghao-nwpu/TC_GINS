@@ -1,5 +1,19 @@
 #include "tc_gins.h"
 
+
+void TcGins::initilize()
+{
+    /** 初始化状态 */
+    nav_info_.t = last_imu_.timestamp();
+    nav_info_.q = Quatd::Identity();
+    nav_info_.v = Vec3d::Zero();
+    nav_info_.p = gnss_solver_.getSppPos();
+    nav_info_.bg = motion_detector_.getGyroStatMean();
+    nav_info_.ba = Vec3d::Zero();
+    nav_info_.dgb = Vec3d::Zero();
+}
+
+
 void TcGins::predictByPreInt()
 {
     double dt = preintegration_.delta_t();
@@ -36,7 +50,12 @@ void TcGins::gnssObsUpdate()
     MatXd H(2 * num_obs, TC_GINS_DIM);
     VecXd Z(2 * num_obs);
     MatXd R(2 * num_obs, 2 * num_obs);
+    MatXd K(TC_GINS_DIM, 2 * num_obs);
+    Mat<double, TC_GINS_DIM, TC_GINS_DIM> I = Mat<double, TC_GINS_DIM, TC_GINS_DIM>::Identity();
+
     Vec3d e = Vec3d::Zero();    /** 方向矢量 */
+    double range = 0.0;         /** 距离 */
+    double range_rate = 0.0;    /** 距离率 */
 
     /** 观测方程 */
     H.setZero();
@@ -45,21 +64,42 @@ void TcGins::gnssObsUpdate()
 
     for (uint16_t i = 0; i < num_obs; i++)
     {
-        /** 伪距观测 */
         F2B0::SvInfo svinfo = gnss_solver_.svinfo(i);
-        e = gnss_solver_.e(svinfo.svid, nav_info_.p);
+        /** TODO: 这里的方向矢量用高度角和方位角计算是否会更好，不依赖自身解算的位置坐标 */
+        e = gnss_solver_.e(svinfo.svid);
+        /** TODO: 这里应该是使用当地坐标系下的距离，而不是ECEF坐标系下的距离 */
+        range = (gnss_solver_.getSatPos(svinfo.svid) - nav_info_.p).norm(); 
+        range_rate = (gnss_solver_.getSatVel(svinfo.svid) - nav_info_.v).dot(e);
+        
+        /** 伪距观测 */
         H.block<3, 1>(i, 0) = e;
         H(i, 15) = 1;
-        Z(i) = svinfo.pseudorange;
+        Z(i) = svinfo.pseudorange - range;
         R(i, i) = svinfo.prRes * svinfo.prRes;
 
         /** 伪距率观测 */
         H.block<3, 1>(i + num_obs, 1) = e;
         H(i + num_obs, 16) = 1;
-        Z(i + num_obs) = svinfo.pseudorangeRate;
+        Z(i + num_obs) = svinfo.pseudorangeRate - range_rate;
         R(i + num_obs, i + num_obs) = 0.5 * 0.5;    /** TODO: 似乎数据里都没有微距率的精度信息 */
     }
+
+    /** Kalman Filter update */
+    K.setZero();
+    K = P_ * H.transpose() * (H * P_ * H.transpose() + R).inverse();
+    X_ = K * Z;
+    P_ = (I - K * H) * P_ * (I - K * H).transpose() + K * R * K.transpose();
     
+    /** 更新导航信息 */
+    nav_info_.q *= Quatd(X_.segment(0, 3));
+    nav_info_.v += X_.segment(3, 3);
+    nav_info_.p += X_.segment(6, 3);
+    nav_info_.bg += X_.segment(9, 3);
+    nav_info_.ba += X_.segment(12, 3);
+    nav_info_.dgb += X_.segment(15, 3);
+    nav_info_.cdt += X_(18);
+    nav_info_.ddtr += X_(19);
+
     return ; 
 }
 
@@ -102,14 +142,14 @@ void TcGins::processImu(const Imu &imu)
     predictByPreInt();
 
     /** 虚拟测量更新 */
-    if (motion_detector_.isMoving())
-    {
-        nhcUpdate();
-    }
-    else
-    {
-        zuptZihrUpdate();
-    }
+    // if (motion_detector_.isMoving())
+    // {
+    //     nhcUpdate();
+    // }
+    // else
+    // {
+    //     zuptZihrUpdate();
+    // }
 
     /** 处理完毕，移动IMU数据 */
     last_imu_ = imu_trans;
