@@ -69,9 +69,9 @@ private:
     std::map<uint8_t, F2B0::PalmBDS> palm_map_;  /** 历书数据 */
     std::map<uint8_t, satInfo> sat_info_map_;  /** 卫星信息 */
 
+    /** GNSS 定位结果 */
     NavGnssSol gnss_sol_;
     Vec3d approx_llh_;  // 接收机近似位置
-    bool eph_valid_ = false; // 标记是否星历数据有效
     bool has_approx_llh_ = false; // 标记是否已初始化
     bool gnss_sol_success_ = false; // 标记是否成功求解GNSS位置
     
@@ -104,7 +104,6 @@ public:
     void updateSatInfoMap();
 
 private:
-
     /** @brief 计算星历数据 */
     void calculateSatPosVel(const uint8_t svid, Vec3d &pos, Vec3d &vel);
 

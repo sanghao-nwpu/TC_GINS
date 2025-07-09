@@ -17,9 +17,9 @@ private:
     Vec3d delta_pos_ = Vec3d::Zero();
 
     /** 预积分观测量的协方差 */
-    Eigen::Matrix<double, 9, 9> cov_ = Eigen::Matrix<double, 9, 9>::Zero();
+    Mat<double, 9, 9> cov_ = Mat<double, 9, 9>::Zero();
 
-    /** 预计分用的零偏 */
+    /** 预积分用的零偏 */
     Vec3d bg_ = Vec3d::Zero();
     Vec3d ba_ = Vec3d::Zero();
 
@@ -37,11 +37,11 @@ public:
     void reset(); 
     
 
-    Eigen::Matrix<double, 9, 9> cov() const { return cov_; }
-    double delta_t() const { return delta_t_; }
-    Vec3d delta_pos() const { return delta_pos_; }
-    Vec3d delta_vel() const { return delta_vel_; }
-    Mat3d delta_rot() const { return delta_rot_; }
+    Mat<double, 9, 9> cov() const { return cov_; }
+    inline double delta_t() const { return delta_t_; }
+    inline Vec3d delta_pos() const { return delta_pos_; }
+    inline Vec3d delta_vel() const { return delta_vel_; }
+    inline Mat3d delta_rot() const { return delta_rot_; }
 private:
     void intergrate(const Imu &last_imu, const Imu &curr_imu);
 

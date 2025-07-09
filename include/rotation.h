@@ -94,6 +94,21 @@ public:
         ans.block<3, 3>(1, 1) = p.w() * Eigen::Matrix3d::Identity() - skewSymmetric(p.vec());
         return ans;
     }
+
+    static Eigen::Matrix3d Jleft(const Eigen::AngleAxisd &so3)
+    {
+        double theta = so3.angle();
+        Eigen::Vector3d axis = so3.axis();
+        Eigen::Matrix3d Jl;
+    }
+
+    static Eigen::Matrix3d Jright(const Eigen::AngleAxisd &so3)
+    {
+        double theta = so3.angle();
+        Eigen::Vector3d axis = so3.axis();
+        Eigen::Matrix3d Jr;
+        Jr << 0, -axis(2), axis(1), axis(2), 0, -axis(0), -axis(1), axis(0), 0;
+    }
 };
 
 #endif // ROTATION_H

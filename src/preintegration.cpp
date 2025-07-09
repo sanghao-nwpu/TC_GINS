@@ -41,13 +41,15 @@ void Preintegration::reintergration()
         delta_pos_ += dvik * dt + 0.5 * dRik * accel * dt * dt;
 
         /** 协方差更新 @ref gaoxiang */
+        Mat3d Jr = Mat3d::Identity();
         A.block<3, 3>(0, 0) = dR;
         A.block<3, 3>(3, 0) = -dR * Rotation::skewSymmetric(accel) * dt;
         A.block<3, 3>(3, 3) = Mat3d::Identity();
         A.block<3, 3>(6, 0) = -0.5 * dR * Rotation::skewSymmetric(accel) * dt * dt; 
         A.block<3, 3>(6, 3) = Mat3d::Identity() * dt;
 
-        B.block<3, 3>(0, 0) = dR * dt;   /** TODO: Jr * dt */
+        Jr = Mat3d::Identity();/** TODO: Jr 待计算 */
+        B.block<3, 3>(0, 0) = Jr * dt;   
         B.block<3, 3>(3, 3) = dR * dt;
         B.block<3, 3>(6, 3) = 0.5 * dR * dt * dt;
 
