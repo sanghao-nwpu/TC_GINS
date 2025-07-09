@@ -97,17 +97,28 @@ public:
 
     static Eigen::Matrix3d Jleft(const Eigen::AngleAxisd &so3)
     {
-        double theta = so3.angle();
+        double p = so3.angle();
+
+        if (p < 1e-3) {
+            return Eigen::Matrix3d::Identity();
+        }
+        double sp = sin(p);
+        double cp = cos(p);
+
         Eigen::Vector3d axis = so3.axis();
-        Eigen::Matrix3d Jl;
+        Eigen::Matrix3d Jl = Eigen::Matrix3d::Zero();
+        Eigen::Matrix3d I = Eigen::Matrix3d::Identity();
+        Jl = sp / p * I + (1 - sp) / p * axis * axis.transpose() + (1 - cp) / p * skewSymmetric(axis);
+        return Jl;
     }
 
     static Eigen::Matrix3d Jright(const Eigen::AngleAxisd &so3)
     {
         double theta = so3.angle();
         Eigen::Vector3d axis = so3.axis();
-        Eigen::Matrix3d Jr;
-        Jr << 0, -axis(2), axis(1), axis(2), 0, -axis(0), -axis(1), axis(0), 0;
+        Eigen::AngleAxisd so3_inv(theta, -axis);
+        /** 直接调用Jleft即可 */
+        return Jleft(so3_inv);
     }
 };
 
